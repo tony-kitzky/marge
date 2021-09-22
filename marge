@@ -11,7 +11,7 @@
 flock -n 9 || exit 1 
 infilename=$@
 timestamp=$(date "+%Y%m%d-%H%M%S")
-watchdir="/var/cache/scanner"
+incrondir="/var/cache/scanner"
 tmpdir="/var/local/lib/scanner/.tmp"
 tmpfile=".tmp_"$timestamp"_"$infilename
 schooldir="/opt/shares/schoolwork"
@@ -22,7 +22,7 @@ scpuser="tkitz"
 scphost="luan.kitz.home"
 
 sleep 2;
-mv $watchdir/$@ $tmpdir/$tmpfile;
+mv $incrondir/$@ $tmpdir/$tmpfile;
 cd $tmpdir;
 chmod 664 $tmpfile;
 
