@@ -1,0 +1,40 @@
+#!/bin/bash
+
+## Marge -- multipurpose media manipulation script
+## Revision 1.1
+
+## Requires incrond
+## incrontab entry for user "scanner"
+##   <$watchdir> IN_CLOSE_WRITE   /bin/bash /usr/local/sbin/marge $#
+
+(
+flock -n 9 || exit 1 
+infilename=$@
+timestamp=$(date "+%Y%m%d-%H%M%S")
+watchdir="/var/cache/scanner"
+tmpdir="/var/local/lib/scanner/.tmp"
+tmpfile=".tmp_"$timestamp"_"$infilename
+schooldir="/opt/shares/schoolwork"
+schoolfile="LaurenHazlitt.Grade06.$timestamp.pdf"
+documentdir="tkitzky@gmail.com/SCANS"
+documentfile="scan_"$timestamp".pdf"
+scpuser="tkitz"
+scphost="luan.kitz.home"
+
+sleep 2;
+mv $watchdir/$@ $tmpdir/$tmpfile;
+cd $tmpdir;
+chmod 664 $tmpfile;
+
+if [[ "$infilename" =~ "schoolwork_" ]]
+then
+    cp $tmpfile $schooldir/$schoolfile;
+    chown lhaz:users $schooldir/$schoolfile;
+    chmod 660 $schooldir/$schoolfile;
+else
+    scp $tmpfile $scpuser@$scphost:$documentdir/$documentfile;
+fi
+
+) 9>/run/lock/marge.lock
+rm /run/lock/marge.lock
+exit
