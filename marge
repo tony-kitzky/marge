@@ -1,9 +1,10 @@
 #!/bin/bash
 
-## Marge -- multipurpose media manipulation script
-## Revision 1.1
+## Marge -- multifunction pdf archive script
+## Revision 3.0 15-Feb-2024 21:14
 
-## Requires incrond
+## Requires incrond rclone ocrmypdf
+
 ## incrontab entry for user "scanner"
 ##   <$watchdir> IN_CLOSE_WRITE   /bin/bash /usr/local/sbin/marge $#
 
@@ -16,10 +17,9 @@ tmpdir="/var/local/lib/scanner/.tmp"
 tmpfile=".tmp_"$timestamp"_"$infilename
 schooldir="/opt/shares/schoolwork"
 schoolfile="LaurenHazlitt.Grade06.$timestamp.pdf"
-documentdir="tkitzky@gmail.com/SCANS"
+uploaddir="eDocuments/SCANS"
 documentfile="scan_"$timestamp".pdf"
-scpuser="tkitz"
-scphost="luan.kitz.home"
+ocrfile="ocr_"$timestamp".pdf"
 
 sleep 2;
 mv $incrondir/$@ $tmpdir/$tmpfile;
@@ -32,7 +32,11 @@ then
     chown lhaz:users $schooldir/$schoolfile;
     chmod 660 $schooldir/$schoolfile;
 else
-    scp $tmpfile $scpuser@$scphost:$documentdir/$documentfile;
+    ocrmypdf $tmpfile $ocrfile;
+    sleep 5;
+    rclone copy $ocrfile tkitzky@gmail.com:/$uploaddir;  
+    sleep 2;
+    rm $ocrfile;
 fi
 
 ) 9>/run/lock/marge.lock
